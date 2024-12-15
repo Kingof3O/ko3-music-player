@@ -61,7 +61,7 @@ A powerful web-based music player that allows you to download and manage your Sp
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/ko3-music-player.git
+git clone https://github.com/Kingof3O/ko3-music-player.git
 cd ko3-music-player
 ```
 
@@ -292,20 +292,6 @@ CREATE TABLE playlists (
     is_public BOOLEAN DEFAULT TRUE,
     owner VARCHAR(100),
     thumbnail_url VARCHAR(1000)
-);
-```
-
-#### Playlist Tracks Table
-```sql
-CREATE TABLE playlist_tracks (
-    playlist_id INTEGER,
-    track_id INTEGER,
-    position INTEGER NOT NULL,
-    date_added DATETIME,
-    PRIMARY KEY (playlist_id, track_id),
-    FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
-    FOREIGN KEY (track_id) REFERENCES downloaded_tracks(id) ON DELETE CASCADE,
-    UNIQUE (playlist_id, position)
 );
 ```
 
