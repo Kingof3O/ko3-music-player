@@ -1,4 +1,9 @@
+<p align="center">
+  <img src="static/images/logo.webp" alt="KO3 Music Player Logo" width="200">
+</p>
 # KO3 Music Player
+
+A powerful web-based music player with Spotify integration, developed in collaboration with [Hassan Salah](https://github.com/hassansalah120/).
 
 A powerful web-based music player that allows you to download and manage your Spotify playlists. Built with Flask and integrates with Spotify API for seamless playlist management and YouTube for high-quality audio downloads.
 
@@ -463,6 +468,11 @@ CREATE TABLE download_history (
 - Never commit your `.env` file or any files containing sensitive credentials
 - Keep your API keys and secrets secure
 - Use environment variables for all sensitive information
+
+## Contributors
+- [Hassan Salah](https://github.com/hassansalah120/)
+- [Kingof3O](https://github.com/Kingof3O/)
+
 
 ## Contributing
 
