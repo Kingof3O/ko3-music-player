@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Library - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            background: linear-gradient(135deg, #1DB954 0%, #191414 100%);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        .login-container {
+            background: rgba(25, 20, 20, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .login-logo {
+            font-size: 3rem;
+            color: #1DB954;
+            margin-bottom: 20px;
+        }
+        .login-title {
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .login-subtitle {
+            color: #b3b3b3;
+            margin-bottom: 25px;
+        }
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .login-logo-image {
+            max-width: 200px;
+            max-height: 150px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .login-logo-image:hover {
+            transform: scale(1.05);
+        }
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 20px;
+                margin: 0 15px;
+                width: calc(100% - 30px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <div class="login-logo">
+                <img src="../static/images/logo.webp" alt="KO3 Music Library Logo" class="login-logo-image img-fluid">
+            </div>
+            <h2 class="login-title">KO3 Music Library</h2>
+            <p class="login-subtitle">Sign in with your Google account to continue</p>
+            
+            <!-- Google Sign-In button -->
+            <div id="g_id_onload"
+                 data-client_id="994704832149-i9sff9ergovs86n0nt0vkburkcp9m1ai.apps.googleusercontent.com"
+                 data-context="signin"
+                 data-ux_mode="redirect"
+                 data-login_uri="http://localhost:5000/auth/google/callback"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="filled_black"
+                 data-text="signin_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        function handleCredentialResponse(response) {
+            const formData = new FormData();
+            formData.append('credential', response.credential);
+            formData.append('g_csrf_token', response.g_csrf_token);
+
+            // Send the credentials to your server
+            fetch('/auth/google', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    // Handle login failure
+                    alert('Login failed. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>

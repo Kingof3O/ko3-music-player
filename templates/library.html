@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KO3 Library - Welcome {{ current_user.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-3" href="#">
+                <img src="../static/images/logo.webp" alt="KO3 Music Library" class="navbar-logo"
+                    style="height: 40px; width: auto;">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link custom-download-btn" href="{{ url_for('index') }}">
+                            <i class="fa-solid fa-download me-2"></i>Download Music
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ current_user.profile_pic if current_user.is_authenticated else '/static/img/default-profile.png' }}"
+                                alt="Profile" class="rounded-circle me-2" style="height: 30px; width: 30px;">
+                            <span class="text-light">{{ current_user.name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('home') }}">
+                                    <i class="fas fa-home me-2"></i>Home
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4 px-4">
+        <div class="row align-items-center mb-4">
+            <div class="col">
+                <h1 class="text-light mb-0">{{ current_user.name }}'s Playlist</h1>
+            </div>
+            <div class="col-auto">
+                <div class="dropdown">
+                    <button class="btn btn-dark dropdown-toggle" type="button" id="filterDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-filter me-2"></i><span id="currentFilter">All</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="filterDropdown">
+                        <li><a class="dropdown-item" href="#" onclick="setFilter('all')">All</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setFilter('audio')">Audio</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="setFilter('video')">Video</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="trackList">
+            <div class="row g-4">
+                <!-- Main Content -->
+                <div class="col-md-12 col-lg-112">
+                    <div class="row g-4">
+                        {% for track in tracks %}
+                        <div class="col-6 col-sm-4 col-md-4 col-lg-3 col-xl-2 track-item"
+                            data-type="{{ track.file_type }}">
+                            <div class="card bg-dark h-100 rounded-3">
+                                <div class="card-img-container rounded-top">
+                                    {% if track.thumbnail_url %}
+                                    <img src="{{ track.thumbnail_url }}" class="card-img-top" alt="{{ track.title }}"
+                                        onerror="this.src='/static/img/default-album.png'">
+                                    {% else %}
+                                    <div
+                                        class="default-thumbnail d-flex justify-content-center align-items-center bg-secondary h-100">
+                                        <i class="fas fa-music fa-2x text-light"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div
+                                        class="play-overlay position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
+                                        <button class="btn btn-success btn-play rounded-circle shadow-sm"
+                                            onclick="playTrack('{{ track.file_path|replace('\\', '/')|replace("'", "\\'") }}', '{{ track.title|replace("'", "\\'") }}', '{{ track.artist|replace("'", "\\'") }}', '{{ track.thumbnail_url }}')">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                    </div>
+                                    {% if track.file_type == 'video' %}
+                                    <span class="position-absolute top-0 end-0 m-2 badge bg-danger rounded-pill">
+                                        <i class="fas fa-video"></i>
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body d-flex flex-column p-3">
+                                    <h6 class="card-title text-truncate text-light">{{ track.title }}</h6>
+                                    <p class="card-text text-truncate text-light opacity-75 mb-1">{{ track.artist }}</p>
+                                    {% if track.album %}
+                                    <p class="card-text text-truncate text-light opacity-75 small mb-1">
+                                        <i class="fas fa-compact-disc me-1"></i> {{ track.album }}
+                                    </p>
+                                    {% endif %}
+                                    <div class="metadata small text-light mb-2 rounded-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span title="Duration" class="d-flex align-items-center gap-1">
+                                                <i class="fas fa-clock"></i> {{ track.formatted_duration }}
+                                            </span>
+                                            <span title="File size" class="d-flex align-items-center gap-1">
+                                                <i class="fas fa-hdd"></i> {{ track.formatted_size }}
+                                            </span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="d-flex align-items-center gap-1">
+                                                {% if track.file_type == 'video' %}
+                                                <i class="fas fa-video"></i> Video
+                                                {% if track.has_subtitles %}
+                                                <i class="fas fa-closed-captioning ms-1" title="Has subtitles"></i>
+                                                {% endif %}
+                                                {% else %}
+                                                <i class="fas fa-music"></i> Audio
+                                                {% endif %}
+                                            </span>
+                                            <span title="Download date" class="d-flex align-items-center gap-1">
+                                                <i class="fas fa-calendar"></i> {{
+                                                track.download_date.strftime('%Y-%m-%d')
+                                                }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <button
+                                                    class="btn btn-sm btn-outline-light w-100 d-flex align-items-center justify-content-center gap-1"
+                                                    onclick="editMetadata('{{ track.id }}')" data-bs-toggle="modal"
+                                                    data-bs-target="#editMetadataModal" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </div>
+                                            <div class="col-6">
+                                                <button
+                                                    class="btn btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-1"
+                                                    onclick="deleteTrack('{{ track.id }}')" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Player -->
+    <div id="audioPlayerContainer" class="fixed-bottom bg-dark text-white p-3">
+        <audio id="audioPlayer" preload="auto"></audio>
+        <div class="audio-player-container container-fluid d-flex align-items-center justify-content-between py-2">
+            <div class="col-md-4">
+                <div class="now-playing-container d-flex align-items-center">
+                    <img id="nowPlayingThumbnail" src="/static/img/default-album.png" alt="Album Artwork"
+                        class="now-playing-thumbnail me-3 img-fluid">
+                    <div class="now-playing-info">
+                        <span id="nowPlayingTitle" class="d-block title">No track playing</span>
+                        <span id="nowPlayingArtist" class="d-block artist ">Unknown Artist</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="controls">
+                  
+                    <button id="playPauseBtn" class="control-btn" onclick="togglePlay()">
+                        <i class="fas fa-play"></i>
+                    </button>
+                
+                </div>
+                <div class="progress-container">
+                    <span id="currentTime">0:00</span>
+                    <div class="progress" id="progressBarContainer">
+                        <div id="progressBar" class="progress-bar" role="progressbar"></div>
+                    </div>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="volume-control">
+                    <button id="muteBtn" class="control-btn" onclick="toggleMute()">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <div class="volume-slider-container">
+                        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="100"
+                            oninput="updateVolume(this.value)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div class="modal fade" id="videoPlayerModal" tabindex="-1" aria-labelledby="videoPlayerModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="videoPlayerModalLabel">Now Playing</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <video id="videoPlayer" class="w-100" controls crossorigin="anonymous">
+                        <track kind="subtitles" srclang="en" label="English">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="modal-footer">
+
+                    <div class="font-size-control">
+                        <label for="fontSizeSlider" class="text-light">Font Size:</label>
+                        <input type="range" id="fontSizeSlider" min="0.5" max="3" step="0.1" value="1.5">
+                    </div>
+                    <button id="ccToggle" class="btn btn-outline-light">
+                        <i class="fas fa-closed-captioning"></i> CC
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Lyrics Display -->
+    <div id="lyrics-display" class="lyrics-container">
+        <p class="lyrics-text"></p>
+    </div>
+
+    <!-- Lyrics Popup -->
+    <div class="lyrics-popup-overlay"></div>
+    <div class="lyrics-popup">
+        <span class="close-btn">&times;</span>
+        <div class="lyrics-content"></div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="editMetadataModal" tabindex="-1" aria-labelledby="editMetadataModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editMetadataModalLabel">Edit Track Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editMetadataForm">
+                        <input type="hidden" id="editTrackId">
+                        <div class="mb-3">
+                            <label for="editTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control bg-dark text-white" id="editTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editArtist" class="form-label">Artist</label>
+                            <input type="text" class="form-control bg-dark text-white" id="editArtist" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAlbum" class="form-label">Album</label>
+                            <input type="text" class="form-control bg-dark text-white" id="editAlbum">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="saveMetadata()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add to Playlist Modal -->
+    <div class="modal fade" id="addToPlaylistModal" tabindex="-1" aria-labelledby="addToPlaylistModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addToPlaylistModalLabel">Add to Playlist</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="selectedTrackId">
+                    <div class="playlist-options">
+                        <!-- Playlists will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="saveToPlaylists()">Add to Selected</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createPlaylistModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Playlist</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="playlistForm">
+                        <div class="mb-3">
+                            <label class="form-label">Playlist Name</label>
+                            <input type="text" class="form-control" id="playlistName">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="playlistDescription"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="createPlaylist()">Create Playlist</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lyrics Popup -->
+    <div id="lyricsPopup" class="draggable">
+        <div id="lyricsHeader">
+            <h5>Lyrics</h5>
+            <button type="button" class="btn btn-sm btn-outline-light" id="closeLyrics">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="lyricsContent"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Use the main audio player
+        let audio = document.getElementById('audioPlayer');
+        let video = document.getElementById('videoPlayer');
+        let videoModal = new bootstrap.Modal(document.getElementById('videoPlayerModal'));
+        let currentTrackId = null;
+        let isPlaying = false;
+        let currentTime = 0;
+        let duration = 0;
+        let playlist = []; // Store the current playlist
+        let currentTrackIndex = -1; // Current track index in playlist
+        let currentLyrics = [];
+
+        // Initialize audio settings
+        audio.volume = 1.0;
+
+        function showLyricsPopup() {
+            console.log('Opening lyrics popup');
+
+            const popup = document.querySelector('.lyrics-popup');
+            const content = popup.querySelector('.lyrics-content');
+            content.innerHTML = '';
+
+            if (!currentLyrics || !currentLyrics.length) {
+                console.log('No lyrics available');
+                return;
+            }
+
+            currentLyrics.forEach((line, index) => {
+                const lineElement = createLyricsLine(line, index);
+                content.appendChild(lineElement);
+            });
+
+            popup.style.display = 'block';
+            document.querySelector('.lyrics-popup-overlay').style.display = 'block';
+        }
+
+        function hidePopup() {
+            document.querySelector('.lyrics-popup').style.display = 'none';
+            document.querySelector('.lyrics-popup-overlay').style.display = 'none';
+        }
+
+        function createLyricsLine(line, index) {
+            const div = document.createElement('div');
+            div.className = 'lyrics-line';
+
+            // Create timestamp element
+            const timestamp = document.createElement('span');
+            timestamp.className = 'timestamp';
+            timestamp.textContent = formatTime(timeToSeconds(line.start_time));
+
+            // Create text element
+            const text = document.createElement('span');
+            text.className = 'text';
+            text.textContent = line.text;
+
+            // Add elements to div
+            div.appendChild(timestamp);
+            div.appendChild(text);
+
+            div.setAttribute('data-start', line.start_time);
+            div.setAttribute('data-index', index);
+
+            // Add direct click event
+            div.addEventListener('click', function (e) {
+                e.stopPropagation();
+                console.log('Lyrics clicked:', this.getAttribute('data-start'));
+
+                const startTime = timeToSeconds(this.getAttribute('data-start'));
+                console.log('Seeking to:', startTime);
+
+                if (audio) {
+                    audio.currentTime = startTime;
+                    if (audio.paused) {
+                        audio.play();
+                    }
+                }
+
+                // Update visual feedback
+                const allLines = document.querySelectorAll('.lyrics-line');
+                allLines.forEach(line => line.classList.remove('current'));
+                div.classList.add('current');
+            });
+
+            return div;
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        // Add event listeners when the document is ready
+        document.addEventListener('DOMContentLoaded', function () {
+            const lyricsDisplay = document.getElementById('lyrics-display');
+            const closeBtn = document.querySelector('.lyrics-popup .close-btn');
+            const overlay = document.querySelector('.lyrics-popup-overlay');
+
+            lyricsDisplay.addEventListener('click', showLyricsPopup);
+            closeBtn.addEventListener('click', hidePopup);
+            overlay.addEventListener('click', hidePopup);
+
+            // Update lyrics on audio time update
+            audio.addEventListener('timeupdate', function () {
+                updateCurrentLyric(this.currentTime);
+            });
+        });
+
+        function timeToSeconds(timeStr) {
+            if (!timeStr) return 0;
+
+            try {
+                const parts = timeStr.split(':');
+                if (parts.length === 3) {
+                    // HH:MM:SS.mmm
+                    const [hours, minutes, secondsPart] = parts;
+                    const [seconds, milliseconds] = secondsPart.split('.');
+                    return (parseInt(hours) * 3600) +
+                        (parseInt(minutes) * 60) +
+                        parseInt(seconds) +
+                        (parseInt(milliseconds || 0) / 1000);
+                } else if (parts.length === 2) {
+                    // MM:SS.mmm
+                    const [minutes, secondsPart] = parts;
+                    const [seconds, milliseconds] = secondsPart.split('.');
+                    return (parseInt(minutes) * 60) +
+                        parseInt(seconds) +
+                        (parseInt(milliseconds || 0) / 1000);
+                }
+            } catch (e) {
+                console.error('Error parsing time:', e);
+                return 0;
+            }
+            return 0;
+        }
+
+        // Audio player functionality
+        let lastVolume = 1.0; // Store last volume level for mute toggle
+        let ccEnabled = false;
+
+        // Build playlist from tracks on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const trackElements = document.querySelectorAll('.track-card');
+            playlist = Array.from(trackElements).map(track => ({
+                filePath: track.querySelector('.play-button').getAttribute('onclick').split("'")[1],
+                title: track.querySelector('.play-button').getAttribute('onclick').split("'")[3],
+                artist: track.querySelector('.play-button').getAttribute('onclick').split("'")[5],
+                fileType: track.querySelector('.play-button').getAttribute('onclick').split("'")[7],
+                hasSubtitles: track.querySelector('.play-button').getAttribute('onclick').split(",")[4].includes('true')
+            }));
+
+            // Initialize video modal with event handlers
+            const videoPlayer = document.getElementById('videoPlayer');
+
+            // Stop video when modal is closed
+            document.getElementById('videoPlayerModal').addEventListener('hidden.bs.modal', function () {
+                videoPlayer.pause();
+                videoPlayer.currentTime = 0;
+                videoPlayer.src = ''; // Clear the source
+            });
+
+            // Stop audio when video starts
+            videoPlayer.addEventListener('play', function () {
+                if (audio && !audio.paused) {
+                    audio.pause();
+                    updatePlayPauseButton();
+                }
+            });
+        });
+
+      
+        function playTrack(filePath, title, artist, thumbnailUrl) {
+            console.log('Playing:', filePath);
+
+            // Make sure we have a valid file path
+            if (!filePath) {
+                console.error('No file path provided');
+                return;
+            }
+
+            try {
+                // Replace backslashes with forward slashes and encode the path
+                filePath = filePath.replace(/\\/g, '/');
+                const encodedPath = encodeURIComponent(filePath);
+                const mediaUrl = '/play/' + encodedPath;
+
+                // Determine if it's a video file
+                const isVideo = filePath.toLowerCase().endsWith('.mp4');
+
+                if (isVideo) {
+                    // Stop audio if playing
+                    audio.pause();
+                    audio.currentTime = 0;
+
+                    // Update video player
+                    video.src = mediaUrl;
+                    document.getElementById('videoPlayerModalLabel').textContent = title;
+
+                    // Load subtitles for video
+                    loadVideoSubtitles(filePath);
+
+                    // Show video modal and play
+                    videoModal.show();
+                    video.play()
+                        .catch(error => {
+                            console.error('Error playing video:', error);
+                            alert('Error playing video: ' + error.message);
+                        });
+                } else {
+                    // Stop video if playing
+                    video.pause();
+                    video.currentTime = 0;
+                    videoModal.hide();
+
+                    // Update audio player
+                    audio.src = mediaUrl;
+                    document.getElementById('nowPlayingTitle').textContent = title || 'Unknown Title';
+                    document.getElementById('nowPlayingArtist').textContent = artist || 'Unknown Artist';
+                    document.getElementById('nowPlayingThumbnail').src = thumbnailUrl || '/static/img/default-album.png';
+                    document.getElementById('nowPlayingThumbnail').alt = `${title} Album Artwork`;
+
+                    // Load lyrics if available
+                    loadLyrics(filePath);
+
+                    // Play audio
+                    audio.play()
+                        .then(() => {
+                            console.log('Playback started successfully');
+                            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                        })
+                        .catch(error => {
+                            console.error('Error playing audio:', error);
+                            alert('Error playing audio: ' + error.message);
+                        });
+                }
+            } catch (error) {
+                console.error('Error in playTrack:', error);
+                alert('Error playing media: ' + error.message);
+            }
+        }
+
+        function toggleCC() {
+            const video = document.getElementById('videoPlayer');
+            const ccToggle = document.getElementById('ccToggle');
+            const track = video.textTracks[0];
+
+            if (track) {
+                if (track.mode === 'showing') {
+                    track.mode = 'hidden';
+                    ccEnabled = false;
+                    ccToggle.classList.remove('active');
+                } else {
+                    track.mode = 'showing';
+                    ccEnabled = true;
+                    ccToggle.classList.add('active');
+                }
+            }
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+                $('#playPauseBtn i').removeClass('fa-pause').addClass('fa-play');
+            } else {
+                audio.play();
+                $('#playPauseBtn i').removeClass('fa-play').addClass('fa-pause');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Search and filter functionality
+        $('#searchInput').on('input', function () {
+            filterTracks();
+        });
+
+        $('#sortSelect, #filterSelect').on('change', function () {
+            filterTracks();
+        });
+
+        function filterTracks() {
+            const searchTerm = $('#searchInput').val().toLowerCase();
+            const sortBy = $('#sortSelect').val();
+            const filterBy = $('#filterSelect').val();
+
+            $('.track-item').each(function () {
+                const title = $(this).data('title').toLowerCase();
+                const artist = $(this).data('artist').toLowerCase();
+                const show = title.includes(searchTerm) || artist.includes(searchTerm);
+                $(this).toggle(show);
+            });
+
+            // Sort tracks
+            const tracks = $('.track-item').get();
+            tracks.sort(function (a, b) {
+                switch (sortBy) {
+                    case 'title':
+                        return $(a).data('title').localeCompare($(b).data('title'));
+                    case 'artist':
+                        return $(a).data('artist').localeCompare($(b).data('artist'));
+                    case 'date-desc':
+                        return new Date($(b).data('date')) - new Date($(a).data('date'));
+                    case 'date-asc':
+                        return new Date($(a).data('date')) - new Date($(b).data('date'));
+                    case 'duration':
+                        return $(a).data('duration') - $(b).data('duration');
+                }
+            });
+
+            const container = $('#tracksContainer');
+            $.each(tracks, function (index, item) {
+                container.append(item);
+            });
+        }
+
+        // Track management functions
+        function editMetadata(trackId) {
+            // Make sure we have the track ID
+            if (!trackId) {
+                console.error('No track ID provided');
+                return;
+            }
+
+            // Get the modal elements
+            const modal = document.getElementById('editMetadataModal');
+            const titleInput = document.getElementById('editTitle');
+            const artistInput = document.getElementById('editArtist');
+            const albumInput = document.getElementById('editAlbum');
+            const trackIdInput = document.getElementById('editTrackId');
+
+            // Fetch track data
+            fetch(`/track/${trackId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Populate the modal
+                    trackIdInput.value = trackId;
+                    titleInput.value = data.title || '';
+                    artistInput.value = data.artist || '';
+                    albumInput.value = data.album || '';
+
+                    // Show the modal
+                    const modal = new bootstrap.Modal(document.getElementById('editMetadataModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error fetching track data:', error);
+                    alert('Error loading track data. Please try again.');
+                });
+        }
+
+        function deleteTrack(trackId) {
+            if (!trackId) {
+                console.error('No track ID provided');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete this track? This will delete the file and all associated data.')) {
+                fetch(`/track/${trackId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw new Error(data.error || 'Failed to delete track');
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Hide any open modals
+                            const modals = document.querySelectorAll('.modal');
+                            modals.forEach(modal => {
+                                const bsModal = bootstrap.Modal.getInstance(modal);
+                                if (bsModal) {
+                                    bsModal.hide();
+                                }
+                            });
+
+                            // Reload the page to show updated library
+                            location.reload();
+                        } else {
+                            throw new Error(data.error || 'Failed to delete track');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error deleting track: ' + error.message);
+                    });
+            }
+        }
+
+        function saveMetadata() {
+            const trackId = document.getElementById('editTrackId').value;
+            const data = {
+                title: document.getElementById('editTitle').value,
+                artist: document.getElementById('editArtist').value,
+                album: document.getElementById('editAlbum').value
+            };
+
+            fetch(`/track/${trackId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(() => {
+                const modal = document.getElementById('editMetadataModal');
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                bsModal.hide();
+                location.reload();
+            });
+        }
+
+        // Initialize tooltips
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+
+            // Handle audio errors
+            audio.addEventListener('error', function (e) {
+                console.error('Audio error:', e);
+                const error = audio.error;
+                if (error) {
+                    alert('Error playing audio: ' + error.message);
+                }
+            });
+        });
+
+        // Audio player time updates
+        audio.addEventListener('timeupdate', function () {
+            const currentTime = formatTime(audio.currentTime);
+            const duration = formatTime(audio.duration);
+            const progress = (audio.currentTime / audio.duration) * 100 || 0;
+
+            $('#currentTime').text(currentTime);
+            $('#duration').text(duration);
+            $('.progress-bar').css('width', progress + '%');
+
+            // Update lyrics display
+            updateCurrentLyric(audio.currentTime);
+        });
+
+        function loadLyrics(filePath) {
+            // Clean up the file path
+            filePath = decodeURIComponent(filePath);
+            filePath = filePath.replace('/play/', '');
+            console.log('Loading lyrics for:', filePath);
+
+            fetch(`/get_lyrics/${encodeURIComponent(filePath)}`)
+                .then(response => {
+                    console.log('Lyrics response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Lyrics response data:', data);
+                    if (data.success && data.lyrics && data.lyrics.length > 0) {
+                        currentLyrics = data.lyrics;
+                        console.log('Lyrics loaded:', currentLyrics.length, 'lines');
+                        // Only try to show lyrics if we have an active audio element
+                        if (audio && !audio.paused) {
+                            updateCurrentLyric(audio.currentTime);
+                        }
+                    } else {
+                        console.log('No lyrics found:', data.error);
+                        currentLyrics = [];
+                        document.getElementById('lyrics-display').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading lyrics:', error);
+                    currentLyrics = [];
+                    document.getElementById('lyrics-display').style.display = 'none';
+                });
+        }
+
+        function updateCurrentLyric(currentTime) {
+            const lyricsContainer = document.getElementById('lyrics-display');
+            const lyricsText = lyricsContainer.querySelector('.lyrics-text');
+            const popup = document.querySelector('.lyrics-popup');
+
+            if (!currentLyrics || !currentLyrics.length) {
+                lyricsContainer.style.display = 'none';
+                return;
+            }
+
+            const currentLine = currentLyrics.find(line => {
+                const start = timeToSeconds(line.start_time);
+                const end = timeToSeconds(line.end_time);
+                return currentTime >= start && currentTime <= end;
+            });
+
+            if (currentLine && currentLine.text.trim()) {
+                // Update main lyrics display
+                lyricsText.textContent = currentLine.text;
+                lyricsContainer.style.display = 'block';
+
+                // Update popup if it's open
+                if (popup.style.display === 'block') {
+                    const lines = popup.querySelectorAll('.lyrics-line');
+                    lines.forEach(line => line.classList.remove('current'));
+
+                    const currentIndex = currentLyrics.indexOf(currentLine);
+                    const currentElement = popup.querySelector(`[data-index="${currentIndex}"]`);
+                    if (currentElement) {
+                        currentElement.classList.add('current');
+                        currentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            } else {
+                lyricsContainer.style.display = 'none';
+            }
+        }
+
+        function updateVolume(value) {
+            const volume = value / 100;
+            audio.volume = volume;
+
+            // Update volume icon based on level
+            const muteBtn = document.getElementById('muteBtn');
+            const icon = muteBtn.querySelector('i');
+            icon.className = getVolumeIconClass(volume);
+
+            // Store the last non-zero volume for unmuting
+            if (volume > 0) {
+                lastVolume = volume;
+            }
+        }
+
+        function toggleMute() {
+            const muteBtn = document.getElementById('muteBtn');
+            const volumeSlider = document.getElementById('volumeSlider');
+            const icon = muteBtn.querySelector('i');
+
+            if (audio.volume > 0) {
+                // Mute
+                lastVolume = audio.volume;
+                audio.volume = 0;
+                volumeSlider.value = 0;
+                icon.className = 'fas fa-volume-mute';
+            } else {
+                // Unmute
+                audio.volume = lastVolume;
+                volumeSlider.value = lastVolume * 100;
+                icon.className = getVolumeIconClass(lastVolume);
+            }
+        }
+
+        function getVolumeIconClass(volume) {
+            if (volume === 0) return 'fas fa-volume-mute';
+            if (volume < 0.33) return 'fas fa-volume-off';
+            if (volume < 0.67) return 'fas fa-volume-down';
+            return 'fas fa-volume-up';
+        }
+
+        // Update volume icon when audio volume changes
+        audio.addEventListener('volumechange', () => {
+            const muteBtn = document.getElementById('muteBtn');
+            const icon = muteBtn.querySelector('i');
+            icon.className = getVolumeIconClass(audio.volume);
+        });
+
+        function loadVideoSubtitles(filePath) {
+            const basePath = filePath.substring(0, filePath.lastIndexOf('.'));
+            const srtPath = basePath + '.srt';
+            const enSrtPath = basePath + '.en.srt';
+
+            // Try to load subtitles
+            fetch(`/subtitles/${encodeURIComponent(srtPath)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        return fetch(`/subtitles/${encodeURIComponent(enSrtPath)}`);
+                    }
+                    return response;
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('No subtitles found');
+                    }
+                    return response.text();
+                })
+                .then(subtitles => {
+                    const track = document.querySelector('#videoPlayer track');
+                    const blob = new Blob([subtitles], { type: 'text/vtt' });
+                    track.src = URL.createObjectURL(blob);
+
+                    // Show CC button
+                    document.getElementById('ccToggle').style.display = 'block';
+                })
+                .catch(error => {
+                    console.log('No subtitles available:', error);
+                    document.getElementById('ccToggle').style.display = 'none';
+                });
+        }
+
+        // CC toggle functionality
+        document.getElementById('ccToggle').addEventListener('click', function () {
+            const video = document.getElementById('videoPlayer');
+            if (video.textTracks[0]) {
+                if (video.textTracks[0].mode === 'showing') {
+                    video.textTracks[0].mode = 'hidden';
+                    this.classList.remove('active');
+                } else {
+                    video.textTracks[0].mode = 'showing';
+                    this.classList.add('active');
+                }
+            }
+        });
+
+        function setFilter(type) {
+            const filterText = type.charAt(0).toUpperCase() + type.slice(1);
+            document.getElementById('currentFilter').textContent = filterText;
+            const tracks = document.querySelectorAll('.track-item');
+            tracks.forEach(track => {
+                if (type === 'all' || track.dataset.type === type) {
+                    track.style.display = '';
+                } else {
+                    track.style.display = 'none';
+                }
+            });
+        }
+    </script>
+    <script>
+        const fontSizeSlider = document.getElementById('fontSizeSlider');
+
+        fontSizeSlider.addEventListener('input', function () {
+            const fontSize = fontSizeSlider.value + 'em';
+            const styleSheet = Array.from(document.styleSheets).find(sheet =>
+                sheet.href && sheet.href.includes('style.css')
+            );
+
+            if (styleSheet) {
+                const cueRuleIndex = Array.from(styleSheet.cssRules).findIndex(
+                    (rule) => rule.selectorText === "video::cue"
+                );
+
+                if (cueRuleIndex !== -1) {
+                    styleSheet.cssRules[cueRuleIndex].style.fontSize = fontSize;
+                }
+            }
+        });
+    </script>
+
+    <script>
+        // Add click event listener to progress bar container
+        document.getElementById('progressBarContainer').addEventListener('click', function (e) {
+            const audio = document.getElementById('audioPlayer');
+            if (audio.duration) {
+                const progressBar = this;
+                const rect = progressBar.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / progressBar.offsetWidth;
+                audio.currentTime = pos * audio.duration;
+            }
+        });
+
+        // Update existing updateProgress function to show hover time
+        function updateProgress() {
+            const audio = document.getElementById('audioPlayer');
+            const progressBar = document.getElementById('progressBar');
+            const currentTimeSpan = document.getElementById('currentTime');
+            const durationSpan = document.getElementById('duration');
+
+            if (audio.duration) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = progress + '%';
+                currentTimeSpan.textContent = formatTime(audio.currentTime);
+                durationSpan.textContent = formatTime(audio.duration);
+            }
+        }
+    </script>
+    <style>
+        .progress {
+            cursor: pointer;
+            height: 6px;
+            transition: height 0.1s ease-in-out;
+        }
+
+        .progress:hover {
+            height: 8px;
+        }
+
+        .progress-bar {
+            background-color: #1DB954;
+            transition: width 0.1s linear;
+        }
+    </style>
+
+    <script>
+        function saveMetadata() {
+            const trackId = document.getElementById('editTrackId').value;
+            const data = {
+                title: document.getElementById('editTitle').value,
+                artist: document.getElementById('editArtist').value,
+                album: document.getElementById('editAlbum').value
+            };
+
+            fetch(`/track/${trackId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(() => {
+                const modal = document.getElementById('editMetadataModal');
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                bsModal.hide();
+                location.reload();
+            });
+        }
+
+        function saveToPlaylists() {
+            const trackId = document.getElementById('selectedTrackId').value;
+            const selectedPlaylists = Array.from(document.querySelectorAll('.playlist-options input[type="checkbox"]:checked'))
+                .map(checkbox => checkbox.value);
+
+            if (selectedPlaylists.length === 0) {
+                alert('Please select at least one playlist');
+                return;
+            }
+
+            Promise.all(selectedPlaylists.map(playlistId =>
+                fetch(`/playlist/${playlistId}/tracks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ track_id: trackId })
+                })
+            ))
+                .then(() => {
+                    const modal = document.getElementById('addToPlaylistModal');
+                    const bsModal = bootstrap.Modal.getInstance(modal);
+                    bsModal.hide();
+                    alert('Track added to selected playlists');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error adding track to playlists. Please try again.');
+                });
+        }
+    </script>
+    <script>
+        function filterTracks() {
+            const filterValue = document.getElementById('trackFilter').value;
+            const tracks = document.querySelectorAll('#trackList .track-item');
+
+            tracks.forEach(track => {
+                const isAudio = track.dataset.type === 'audio';
+                const isVideo = track.dataset.type === 'video';
+
+                if (filterValue === 'all' || (filterValue === 'audio' && isAudio) || (filterValue === 'video' && isVideo)) {
+                    track.style.display = '';
+                } else {
+                    track.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

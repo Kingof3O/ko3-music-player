@@ -1,0 +1,52 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.template
+config/firebase-key.json
+config/*.json
+!config/*-template.json
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs and databases
+*.log
+logs/
+app.log*
+*.db
+*.sqlite3
+data/*.db
+data/*.sqlite3
+
+# Cache
+.cache
+.cache-*
+
+# Downloaded content and temporary files
+downloaded_content/
+temp_*
+*.jpg
+*.mp3
+*.mp4
+
+# Build and dist
+dist/
+build/
+*.egg-info/
+
+# System files
+.DS_Store
+Thumbs.db
