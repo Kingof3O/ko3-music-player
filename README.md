@@ -95,6 +95,17 @@ python src/app.py
 FIREBASE_CREDENTIALS_PATH=config/firebase-key.json
 ```
 
+## Spotify Configuration
+1. Create a Spotify Developer account and register your application at [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Copy your Client ID and Client Secret
+3. Create a `config.json` file based on `config.json.template`:
+```json
+{
+    "SPOTIFY_CLIENT_ID": "your_spotify_client_id",
+    "SPOTIFY_CLIENT_SECRET": "your_spotify_client_secret"
+}
+```
+
 ## Usage
 
 1. Start the Flask server:

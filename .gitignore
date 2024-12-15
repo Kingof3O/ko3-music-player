@@ -8,6 +8,9 @@ config/*.json
 *.pem
 *.key
 
+# Config files with sensitive data
+config.json
+
 # Python
 __pycache__/
 *.py[cod]
