@@ -5,7 +5,7 @@
 
 A powerful web-based music player with Spotify integration, developed in collaboration with [Hassan Salah](https://github.com/hassansalah120/).
 
-A powerful web-based music player that allows you to download and manage your Spotify playlists. Built with Flask and integrates with Spotify API for seamless playlist management and YouTube for high-quality audio downloads.
+Music player that allows you to download and manage your Spotify playlists. Built with Flask and integrates with Spotify API for seamless playlist management and YouTube for high-quality audio downloads.
 
 ## Screenshots
 
