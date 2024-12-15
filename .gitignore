@@ -50,6 +50,9 @@ dist/
 build/
 *.egg-info/
 
+# User data
+data/users.json
+
 # System files
 .DS_Store
 Thumbs.db

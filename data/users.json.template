@@ -1,0 +1,7 @@
+{
+    "user_id_example": {
+        "email": "user@example.com",
+        "name": "Example User",
+        "profile_pic": "https://example.com/profile.jpg"
+    }
+}
