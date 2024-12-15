@@ -4,25 +4,40 @@ A powerful web-based music player that allows you to download and manage your Sp
 
 ## Screenshots
 
-### Home Page
-![Home Page](screenshots/1-index-page.png)
-*Clean and intuitive home page interface*
+### Main Interface
+![Index Page](screenshots/1-index-page.png)
+*Main interface of KO3 Music Player*
 
-### Library View
+### Library View with Downloaded Songs
+![Library with Songs](screenshots/2-index-page-after-downloading-some-songs.png)
+*Library view showing downloaded songs and playlists*
+
+### Google Authentication
+![Login Page](screenshots/3-login-page-with-google.png)
+*Secure login with Google authentication*
+
+### Music Library
 ![Library Page](screenshots/4-library-page%20.png)
-*Organized library with all your downloaded music*
+*Organized music library with search and filter options*
 
-### Music Player with Lyrics
-![Music Player with Lyrics](screenshots/5-playing-song-with-lyrics-overlay.png)
-*Built-in lyrics support for an enhanced listening experience*
+### Playback Features
+![Playing with Lyrics](screenshots/5-playing-song-with-lyrics-overlay.png)
+*Music playback with synchronized lyrics overlay*
 
-### Video Player Support
-![Video Player](screenshots/7-playing-music-video-in-miniscreen-with-cc-font-control.png)
-*Watch music videos with customizable subtitle controls*
+### Lyrics View
+![Lyrics Popup](screenshots/6-lyrics-popup.png)
+*Detailed lyrics view with scrollable text*
 
-### Smart Filtering
+### Video Playback
+![Video Miniscreen](screenshots/7-playing-music-video-in-miniscreen-with-cc-font-control.png)
+*Mini video player with caption and font controls*
+
+![Video Fullscreen](screenshots/8-playing-music-video-in-fullscreen.png)
+*Fullscreen video playback mode*
+
+### Advanced Features
 ![Filter Options](screenshots/9-filter-dropdown.png)
-*Advanced filtering options for better content management*
+*Advanced filtering and sorting options*
 
 ## Features
 
